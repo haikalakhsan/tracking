@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tracker Aktivitas Harian</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-900 text-gray-100 min-h-screen p-6">
+    <div class="max-w-2xl mx-auto space-y-6">
+        <h1 class="text-3xl font-bold text-indigo-400">Tracker Rutinitas Harian</h1>
+
+        <!-- Menu Tab -->
+        <div class="flex space-x-2 border-b border-gray-700 pb-2">
+            <button onclick="switchTab('latihan')" id="tab-latihan"
+                class="px-4 py-2 rounded bg-indigo-600 font-semibold">Latihan</button>
+            <button onclick="switchTab('asupan')" id="tab-asupan"
+                class="px-4 py-2 rounded bg-gray-800 text-gray-400 font-semibold">Asupan</button>
+            <button onclick="switchTab('kegiatan')" id="tab-kegiatan"
+                class="px-4 py-2 rounded bg-gray-800 text-gray-400 font-semibold">Kegiatan</button>
+        </div>
+
+        <!-- FORM LATIHAN -->
+        <form id="formLatihan" class="tab-content bg-gray-800 p-6 rounded-lg shadow-md space-y-4">
+            <h2 class="text-xl font-semibold border-b border-gray-700 pb-2">Tambah Log Latihan</h2>
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium mb-1">Tanggal</label>
+                    <input type="date" id="lat_tanggal" required
+                        class="w-full bg-gray-700 rounded p-2 text-white border border-gray-600">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1">Kategori</label>
+                    <select id="lat_kategori" required
+                        class="w-full bg-gray-700 rounded p-2 text-white border border-gray-600">
+                        <option value="Gym">Gym / Beban</option>
+                        <option value="Kardio">Kardio / Lari</option>
+                        <option value="Peregangan">Peregangan</option>
+                    </select>
+                </div>
+            </div>
+            <div>
+                <label class="block text-sm font-medium mb-1">Nama Gerakan</label>
+                <input type="text" id="lat_nama" placeholder="Dumbbell Squat / Lari Sore" required
+                    class="w-full bg-gray-700 rounded p-2 text-white border border-gray-600">
+            </div>
+            <div class="grid grid-cols-4 gap-2">
+                <div><label class="block text-xs font-medium mb-1">Set</label><input type="number" id="lat_set"
+                        placeholder="3" class="w-full bg-gray-700 rounded p-2 text-white border border-gray-600"></div>
+                <div><label class="block text-xs font-medium mb-1">Reps</label><input type="number" id="lat_reps"
+                        placeholder="12" class="w-full bg-gray-700 rounded p-2 text-white border border-gray-600"></div>
+                <div><label class="block text-xs font-medium mb-1">Beban (kg)</label><input type="number" id="lat_beban"
+                        placeholder="10" class="w-full bg-gray-700 rounded p-2 text-white border border-gray-600"></div>
+                <div><label class="block text-xs font-medium mb-1">Durasi (Mnt)</label><input type="number"
+                        id="lat_durasi" placeholder="15"
+                        class="w-full bg-gray-700 rounded p-2 text-white border border-gray-600"></div>
+            </div>
+            <input type="text" id="lat_catatan" placeholder="Catatan opsional"
+                class="w-full bg-gray-700 rounded p-2 text-white border border-gray-600">
+            <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 font-semibold py-2 rounded">Simpan
+                Latihan</button>
+        </form>
+
+        <!-- FORM ASUPAN -->
+        <form id="formAsupan" class="tab-content hidden bg-gray-800 p-6 rounded-lg shadow-md space-y-4">
+            <h2 class="text-xl font-semibold border-b border-gray-700 pb-2">Tambah Log Asupan Makanan/Minuman</h2>
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium mb-1">Tanggal</label>
+                    <input type="date" id="asu_tanggal" required
+                        class="w-full bg-gray-700 rounded p-2 text-white border border-gray-600">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1">Waktu</label>
+                    <select id="asu_waktu" required
+                        class="w-full bg-gray-700 rounded p-2 text-white border border-gray-600">
+                        <option value="Pagi">Pagi</option>
+                        <option value="Siang">Siang</option>
+                        <option value="Malam">Malam</option>
+                        <option value="Cemilan">Cemilan</option>
+                        <!-- Opsi baru untuk puasa -->
+                        <option value="Sahur">Sahur</option>
+                        <option value="Buka Puasa">Buka Puasa</option>
+                    </select>
+                </div>
+            </div>
+            <div>
+                <label class="block text-sm font-medium mb-1">Nama Makanan / Minuman</label>
+                <input type="text" id="asu_nama" placeholder="Oatmeal + Susu / Telur Rebus 2" required
+                    class="w-full bg-gray-700 rounded p-2 text-white border border-gray-600">
+            </div>
+            <input type="text" id="asu_catatan" placeholder="Catatan opsional"
+                class="w-full bg-gray-700 rounded p-2 text-white border border-gray-600">
+            <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-500 font-semibold py-2 rounded">Simpan
+                Asupan</button>
+        </form>
+
+        <!-- FORM KEGIATAN -->
+        <form id="formKegiatan" class="tab-content hidden bg-gray-800 p-6 rounded-lg shadow-md space-y-4">
+            <h2 class="text-xl font-semibold border-b border-gray-700 pb-2">Tambah Log Kegiatan Harian</h2>
+            <div class="grid grid-cols-3 gap-4">
+                <div>
+                    <label class="block text-sm font-medium mb-1">Tanggal</label>
+                    <input type="date" id="keg_tanggal" required
+                        class="w-full bg-gray-700 rounded p-2 text-white border border-gray-600">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1">Mulai</label>
+                    <input type="time" id="keg_mulai"
+                        class="w-full bg-gray-700 rounded p-2 text-white border border-gray-600">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1">Selesai</label>
+                    <input type="time" id="keg_selesai"
+                        class="w-full bg-gray-700 rounded p-2 text-white border border-gray-600">
+                </div>
+            </div>
+            <div>
+                <label class="block text-sm font-medium mb-1">Aktivitas</label>
+                <input type="text" id="keg_nama" placeholder="Kuliah / Tidur Siang / Belajar Web" required
+                    class="w-full bg-gray-700 rounded p-2 text-white border border-gray-600">
+            </div>
+            <input type="text" id="keg_catatan" placeholder="Catatan opsional"
+                class="w-full bg-gray-700 rounded p-2 text-white border border-gray-600">
+            <button type="submit" class="w-full bg-amber-600 hover:bg-amber-500 font-semibold py-2 rounded">Simpan
+                Kegiatan</button>
+        </form>
+
+        <!-- LIST RIWAYAT DATA -->
+        <div class="bg-gray-800 p-6 rounded-lg shadow-md">
+            <h2 id="judulRiwayat" class="text-xl font-semibold border-b border-gray-700 pb-2 mb-4">Riwayat Data</h2>
+            <div id="listData" class="space-y-3"></div>
+        </div>
+    </div>
+
+    <script>
+        let currentTab = 'latihan';
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('lat_tanggal').value = today;
+        document.getElementById('asu_tanggal').value = today;
+        document.getElementById('keg_tanggal').value = today;
+
+        function switchTab(tab) {
+            currentTab = tab;
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            ['latihan', 'asupan', 'kegiatan'].forEach(t => {
+                const btn = document.getElementById(`tab-${t}`);
+                btn.className = 'px-4 py-2 rounded font-semibold bg-gray-800 text-gray-400';
+            });
+
+            document.getElementById(`tab-${tab}`).className = 'px-4 py-2 rounded font-semibold bg-indigo-600 text-white';
+
+            if (tab === 'latihan') document.getElementById('formLatihan').classList.remove('hidden');
+            if (tab === 'asupan') document.getElementById('formAsupan').classList.remove('hidden');
+            if (tab === 'kegiatan') document.getElementById('formKegiatan').classList.remove('hidden');
+
+            loadData();
+        }
+
+        async function loadData() {
+            const res = await fetch(`http://localhost:3000/api/${currentTab}`);
+            const data = await res.json();
+            const list = document.getElementById('listData');
+            list.innerHTML = '';
+
+            if (data.length === 0) {
+                list.innerHTML = '<p class="text-gray-400">Belum ada data recorded.</p>';
+                return;
+            }
+
+            data.forEach(item => {
+                const dateFmt = new Date(item.tanggal).toLocaleDateString('id-ID');
+                let title = '', badge = '', sub = '';
+
+                if (currentTab === 'latihan') {
+                    badge = item.kategori;
+                    title = item.nama_gerakan;
+                    if (item.set_latihan && item.repetisi) sub += `${item.set_latihan} Set x ${item.repetisi} Reps `;
+                    if (item.beban_kg) sub += `(${item.beban_kg} kg) `;
+                    if (item.durasi_menit) sub += `[${item.durasi_menit} Mnt]`;
+                } else if (currentTab === 'asupan') {
+                    badge = item.waktu_konsumsi;
+                    title = item.nama_item;
+                } else if (currentTab === 'kegiatan') {
+                    badge = 'Kegiatan';
+                    title = item.nama_kegiatan;
+                    if (item.waktu_mulai) sub += `${item.waktu_mulai.slice(0, 5)} `;
+                    if (item.waktu_selesai) sub += `- ${item.waktu_selesai.slice(0, 5)}`;
+                }
+
+                list.innerHTML += `
+                    <div class="bg-gray-700 p-4 rounded-lg flex justify-between items-center">
+                        <div>
+                            <span class="text-xs font-semibold px-2 py-1 rounded bg-indigo-500 text-white">${badge}</span>
+                            <h3 class="text-lg font-bold mt-1">${title}</h3>
+                            ${sub ? `<p class="text-sm text-gray-300">${sub}</p>` : ''}
+                            ${item.catatan ? `<p class="text-xs text-gray-400 italic mt-1">"${item.catatan}"</p>` : ''}
+                        </div>
+                        <div class="text-right space-y-2">
+                            <span class="text-xs text-gray-400 block">${dateFmt}</span>
+                            <button onclick="hapusData('${currentTab}', ${item.id})" class="text-xs bg-red-600 hover:bg-red-500 text-white px-2 py-1 rounded">Hapus</button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        async function hapusData(tabel, id) {
+            if (!confirm('Yakin ingin menghapus data ini?')) return;
+            await fetch(`http://localhost:3000/api/${tabel}/${id}`, { method: 'DELETE' });
+            loadData();
+        }
+
+        // Event Listeners Submit Form
+        document.getElementById('formLatihan').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            await fetch('http://localhost:3000/api/latihan', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    tanggal: document.getElementById('lat_tanggal').value,
+                    kategori: document.getElementById('lat_kategori').value,
+                    nama_gerakan: document.getElementById('lat_nama').value,
+                    set_latihan: document.getElementById('lat_set').value || null,
+                    repetisi: document.getElementById('lat_reps').value || null,
+                    beban_kg: document.getElementById('lat_beban').value || null,
+                    durasi_menit: document.getElementById('lat_durasi').value || null,
+                    catatan: document.getElementById('lat_catatan').value || null
+                })
+            });
+            document.getElementById('lat_nama').value = '';
+            loadData();
+        });
+
+        document.getElementById('formAsupan').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            await fetch('http://localhost:3000/api/asupan', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    tanggal: document.getElementById('asu_tanggal').value,
+                    waktu_konsumsi: document.getElementById('asu_waktu').value,
+                    nama_item: document.getElementById('asu_nama').value,
+                    catatan: document.getElementById('asu_catatan').value || null
+                })
+            });
+            document.getElementById('asu_nama').value = '';
+            loadData();
+        });
+
+        document.getElementById('formKegiatan').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            await fetch('http://localhost:3000/api/kegiatan', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    tanggal: document.getElementById('keg_tanggal').value,
+                    nama_kegiatan: document.getElementById('keg_nama').value,
+                    waktu_mulai: document.getElementById('keg_mulai').value || null,
+                    waktu_selesai: document.getElementById('keg_selesai').value || null,
+                    catatan: document.getElementById('keg_catatan').value || null
+                })
+            });
+            document.getElementById('keg_nama').value = '';
+            loadData();
+        });
+
+        loadData();
+    </script>
+</body>
+
+</html>
