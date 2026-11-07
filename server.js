@@ -5,27 +5,48 @@ const path = require('path');
 
 const app = express();
 app.use(express.json());
-app.use(express.static(__dirname)); // 1. Layani file index.html langsung
 
+// Izinkan akses CORS & IP lokal
+app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    if (req.method === 'OPTIONS') return res.sendStatus(200);
+    next();
+});
+
+// 1. Sajikan static file dari folder proyek
+app.use(express.static(__dirname));
+
+// 2. Rute utama
+app.get('/', (req, res) => {
+    const indexPath = path.join(__dirname, 'index.html');
+    if (fs.existsSync(indexPath)) {
+        res.sendFile(indexPath);
+    } else {
+        res.status(404).send('File index.html tidak ditemukan di folder proyek!');
+    }
+});
+
+// Koneksi Database MySQL
 const db = mysql.createPool({
     host: 'localhost',
     user: 'root',
     password: '',
-    database: 'db_traker_harian',
+    database: 'db_traker_harian', // Sesuaikan jika nama databasemu db_traker_harian / db_tracker_harian
     waitForConnections: true,
     connectionLimit: 10,
     queueLimit: 0,
-    dateStrings: true // 2. Pastikan format tanggal murni 'YYYY-MM-DD'
+    dateStrings: true
 });
 
-// Helper untuk Celah 1: Ubah string kosong dari frontend menjadi NULL agar MySQL tidak error
+// Helper 1: Ubah string kosong dari frontend menjadi NULL
 const parseNull = (val) => (val === "" || val === undefined || val === null) ? null : val;
-// Helper untuk mencegah input tanggal dari masa depan
-// FIX CELAH 7: Validasi tanggal berbasis string murni YYYY-MM-DD (Bebas bias zona waktu)
+
+// Helper 2: Validasi tanggal murni YYYY-MM-DD (Bebas bias zona waktu)
 const isFutureDate = (tanggalStr) => {
-    if (!tanggalStr || !/^\d{4}-\d{2}-\d{2}$/.test(tanggalStr)) return true; // Format harus valid
+    if (!tanggalStr || !/^\d{4}-\d{2}-\d{2}$/.test(tanggalStr)) return true;
     
-    // Ambil tanggal hari ini dalam format lokal string YYYY-MM-DD
     const d = new Date();
     const year = d.getFullYear();
     const month = String(d.getMonth() + 1).padStart(2, '0');
@@ -34,15 +55,18 @@ const isFutureDate = (tanggalStr) => {
 
     return tanggalStr > todayStr;
 };
-// Helper untuk Validasi ID berupa angka bulat positif
+
+// Helper 3: Validasi ID angka positif
 const isValidId = (id) => {
     const parsed = Number(id);
     return Number.isInteger(parsed) && parsed > 0;
 };
-// --- ROUTE LATIHAN ---
+
+// =========================================================================
+// ROUTE CRUD LATIHAN
+// =========================================================================
 app.get('/api/latihan', async (req, res) => {
     try {
-        // Hanya kirim 40 hari terakhir ke UI agar ringan
         const [rows] = await db.promise().query('SELECT * FROM latihan WHERE tanggal >= DATE_SUB(CURDATE(), INTERVAL 40 DAY) ORDER BY tanggal DESC');
         res.json({ success: true, data: rows });
     } catch (err) { res.status(500).json({ error: err.message }); }
@@ -51,32 +75,32 @@ app.get('/api/latihan', async (req, res) => {
 app.post('/api/latihan', async (req, res) => {
     try {
         const { tanggal, kategori, nama_gerakan, set_latihan, repetisi, beban_kg, durasi_menit, catatan } = req.body;
+        
+        // Cek validasi sebelum INSERT ke database
+        if (isFutureDate(tanggal)) {
+            return res.status(400).json({ error: 'Tanggal tidak boleh di masa depan!' });
+        }
+
         await db.promise().query(
             'INSERT INTO latihan (tanggal, kategori, nama_gerakan, set_latihan, repetisi, beban_kg, durasi_menit, catatan) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
             [tanggal, kategori, nama_gerakan, parseNull(set_latihan), parseNull(repetisi), parseNull(beban_kg), parseNull(durasi_menit), parseNull(catatan)]
         );
         res.json({ success: true });
-        if (isFutureDate(req.body.tanggal)) {
-            return res.status(400).json({ error: 'Tanggal tidak boleh di masa depan!' });
-        }
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// --- FIX CELAH 8: Route Delete yang Aman ---
 app.delete('/api/latihan/:id', async (req, res) => {
     try {
-        if (!isValidId(req.params.id)) {
-            return res.status(400).json({ error: 'ID tidak valid!' });
-        }
+        if (!isValidId(req.params.id)) return res.status(400).json({ error: 'ID tidak valid!' });
         const [result] = await db.promise().query('DELETE FROM latihan WHERE id = ?', [req.params.id]);
-        if (result.affectedRows === 0) {
-            return res.status(404).json({ error: 'Data latihan tidak ditemukan.' });
-        }
+        if (result.affectedRows === 0) return res.status(404).json({ error: 'Data latihan tidak ditemukan.' });
         res.json({ success: true });
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// --- ROUTE ASUPAN ---
+// =========================================================================
+// ROUTE CRUD ASUPAN
+// =========================================================================
 app.get('/api/asupan', async (req, res) => {
     try {
         const [rows] = await db.promise().query('SELECT * FROM asupan WHERE tanggal >= DATE_SUB(CURDATE(), INTERVAL 40 DAY) ORDER BY tanggal DESC');
@@ -87,31 +111,31 @@ app.get('/api/asupan', async (req, res) => {
 app.post('/api/asupan', async (req, res) => {
     try {
         const { tanggal, waktu_konsumsi, nama_item, catatan } = req.body;
+
+        if (isFutureDate(tanggal)) {
+            return res.status(400).json({ error: 'Tanggal tidak boleh di masa depan!' });
+        }
+
         await db.promise().query(
             'INSERT INTO asupan (tanggal, waktu_konsumsi, nama_item, catatan) VALUES (?, ?, ?, ?)',
             [tanggal, waktu_konsumsi, nama_item, parseNull(catatan)]
         );
         res.json({ success: true });
-        if (isFutureDate(req.body.tanggal)) {
-            return res.status(400).json({ error: 'Tanggal tidak boleh di masa depan!' });
-        }
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
 app.delete('/api/asupan/:id', async (req, res) => {
     try {
-        if (!isValidId(req.params.id)) {
-            return res.status(400).json({ error: 'ID tidak valid!' });
-        }
+        if (!isValidId(req.params.id)) return res.status(400).json({ error: 'ID tidak valid!' });
         const [result] = await db.promise().query('DELETE FROM asupan WHERE id = ?', [req.params.id]);
-        if (result.affectedRows === 0) {
-            return res.status(404).json({ error: 'Data asupan tidak ditemukan.' });
-        }
+        if (result.affectedRows === 0) return res.status(404).json({ error: 'Data asupan tidak ditemukan.' });
         res.json({ success: true });
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// --- ROUTE KEGIATAN ---
+// =========================================================================
+// ROUTE CRUD KEGIATAN
+// =========================================================================
 app.get('/api/kegiatan', async (req, res) => {
     try {
         const [rows] = await db.promise().query('SELECT * FROM kegiatan WHERE tanggal >= DATE_SUB(CURDATE(), INTERVAL 40 DAY) ORDER BY tanggal DESC, waktu_mulai DESC');
@@ -122,32 +146,30 @@ app.get('/api/kegiatan', async (req, res) => {
 app.post('/api/kegiatan', async (req, res) => {
     try {
         const { tanggal, nama_kegiatan, waktu_mulai, waktu_selesai, catatan } = req.body;
+
+        if (isFutureDate(tanggal)) {
+            return res.status(400).json({ error: 'Tanggal tidak boleh di masa depan!' });
+        }
+
         await db.promise().query(
             'INSERT INTO kegiatan (tanggal, nama_kegiatan, waktu_mulai, waktu_selesai, catatan) VALUES (?, ?, ?, ?, ?)',
             [tanggal, nama_kegiatan, waktu_mulai, waktu_selesai, parseNull(catatan)]
         );
         res.json({ success: true });
-        if (isFutureDate(req.body.tanggal)) {
-            return res.status(400).json({ error: 'Tanggal tidak boleh di masa depan!' });
-        }
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
 app.delete('/api/kegiatan/:id', async (req, res) => {
     try {
-        if (!isValidId(req.params.id)) {
-            return res.status(400).json({ error: 'ID tidak valid!' });
-        }
+        if (!isValidId(req.params.id)) return res.status(400).json({ error: 'ID tidak valid!' });
         const [result] = await db.promise().query('DELETE FROM kegiatan WHERE id = ?', [req.params.id]);
-        if (result.affectedRows === 0) {
-            return res.status(404).json({ error: 'Data kegiatan tidak ditemukan.' });
-        }
+        if (result.affectedRows === 0) return res.status(404).json({ error: 'Data kegiatan tidak ditemukan.' });
         res.json({ success: true });
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
 // =========================================================================
-// LOGIKA UTAMA MAINTENANCE (Arsip Mingguan Utuh + Rekap Bulanan + Purge)
+// LOGIKA UTAMA MAINTENANCE AUTOMATIC
 // =========================================================================
 async function jalankanMaintenanceLokal() {
     console.log('[MAINTENANCE] Memeriksa kelayakan pembersihan data (> 40 hari)...');
@@ -165,16 +187,10 @@ async function jalankanMaintenanceLokal() {
         let totalFileDibuat = 0;
         let totalBarisDihapus = 0;
 
-        // Batas Aman: Mengambil hari Minggu terakhir dari minggu yang sudah lewat 40 hari penuh
-        const queryBatasMingguUtuh = `
-            SELECT YEARWEEK(DATE_SUB(CURDATE(), INTERVAL 40 DAY), 1) AS batas_minggu
-        `;
+        const queryBatasMingguUtuh = `SELECT YEARWEEK(DATE_SUB(CURDATE(), INTERVAL 40 DAY), 1) AS batas_minggu`;
         const [resBatas] = await connection.query(queryBatasMingguUtuh);
         const batasMingguVal = resBatas[0].batas_minggu;
 
-        // -----------------------------------------------------------------
-        // 1. EKSPO R DATA MENTAH PER MINGGU UTUH KE FILE JSON
-        // -----------------------------------------------------------------
         for (const tabel of tabelList) {
             const [mingguList] = await connection.query(`
                 SELECT DISTINCT YEARWEEK(tanggal, 1) AS minggu_val 
@@ -199,13 +215,11 @@ async function jalankanMaintenanceLokal() {
                     const namaFile = `${tabel}_${tahun}_W${mingguKe.padStart(2, '0')}.json`;
                     const lokasiFile = path.join(folderArsip, namaFile);
 
-                    // CELAH 3 & 4 FIX: Append data & Proteksi File Corrupt
                     if (fs.existsSync(lokasiFile)) {
                         let dataLama = [];
                         try {
                             dataLama = JSON.parse(fs.readFileSync(lokasiFile, 'utf-8'));
                         } catch (parseError) {
-                            // Jika file rusak (corrupt), rename agar aman dan mulai dari array kosong
                             const corruptName = `${lokasiFile}.corrupt-${Date.now()}`;
                             fs.renameSync(lokasiFile, corruptName);
                             console.warn(`[WARNING] File ${namaFile} corrupt! Di-backup ke ${path.basename(corruptName)}`);
@@ -226,11 +240,7 @@ async function jalankanMaintenanceLokal() {
             }
         }
 
-        // -----------------------------------------------------------------
-        // 2. REKAPITULASI BULANAN SEBELUM PURGE
-        // -----------------------------------------------------------------
-
-        // Rekap Latihan
+        // Rekap Bulanan
         await connection.query(`
             INSERT INTO rekap_bulanan_latihan 
             (bulan_tahun, gym_total_sesi, gym_total_volume_kg, gym_total_reps, kardio_total_sesi, kardio_total_durasi_menit, peregangan_total_sesi)
@@ -254,7 +264,6 @@ async function jalankanMaintenanceLokal() {
                 peregangan_total_sesi = VALUES(peregangan_total_sesi);
         `, [batasMingguVal]);
 
-        // Rekap Asupan
         await connection.query(`
             INSERT INTO rekap_bulanan_asupan (bulan_tahun, jumlah_hari_puasa, total_makanan_utama)
             SELECT 
@@ -269,29 +278,26 @@ async function jalankanMaintenanceLokal() {
                 total_makanan_utama = VALUES(total_makanan_utama);
         `, [batasMingguVal]);
 
-        // Rekap Kegiatan (Celah 2 FIX: Kalkulasi menit lintas hari)
         await connection.query(`
-        INSERT INTO rekap_bulanan_kegiatan (bulan_tahun, total_kegiatan, total_jam_produktif)
-        SELECT 
-            DATE_FORMAT(tanggal, '%Y-%m') AS bulan_tahun,
-            COUNT(*) AS total_kegiatan,
-            IFNULL(SUM(
-                CASE 
-                    WHEN waktu_selesai < waktu_mulai THEN (TIMESTAMPDIFF(MINUTE, waktu_mulai, waktu_selesai) + 1440) 
-                    ELSE TIMESTAMPDIFF(MINUTE, waktu_mulai, waktu_selesai) 
-                END
-            ) / 60.0, 0) AS total_jam_produktif
-        FROM kegiatan
-        WHERE YEARWEEK(tanggal, 1) <= ?
-        GROUP BY DATE_FORMAT(tanggal, '%Y-%m')
-        ON DUPLICATE KEY UPDATE 
-            total_kegiatan = VALUES(total_kegiatan),
-            total_jam_produktif = VALUES(total_jam_produktif);
-    `, [batasMingguVal]);
+            INSERT INTO rekap_bulanan_kegiatan (bulan_tahun, total_kegiatan, total_jam_produktif)
+            SELECT 
+                DATE_FORMAT(tanggal, '%Y-%m') AS bulan_tahun,
+                COUNT(*) AS total_kegiatan,
+                IFNULL(SUM(
+                    CASE 
+                        WHEN waktu_selesai < waktu_mulai THEN (TIMESTAMPDIFF(MINUTE, waktu_mulai, waktu_selesai) + 1440) 
+                        ELSE TIMESTAMPDIFF(MINUTE, waktu_mulai, waktu_selesai) 
+                    END
+                ) / 60.0, 0) AS total_jam_produktif
+            FROM kegiatan
+            WHERE YEARWEEK(tanggal, 1) <= ?
+            GROUP BY DATE_FORMAT(tanggal, '%Y-%m')
+            ON DUPLICATE KEY UPDATE 
+                total_kegiatan = VALUES(total_kegiatan),
+                total_jam_produktif = VALUES(total_jam_produktif);
+        `, [batasMingguVal]);
 
-        // -----------------------------------------------------------------
-        // 3. PURGE DATA MENTAH DARI MYSQL (HANYA YANG SUDAH TERARSIP UTUH)
-        // -----------------------------------------------------------------
+        // Purge data mentah
         for (const tabel of tabelList) {
             const [resDelete] = await connection.query(`
                 DELETE FROM ${tabel} 
@@ -303,23 +309,21 @@ async function jalankanMaintenanceLokal() {
         await connection.commit();
 
         if (totalBarisDihapus > 0) {
-            console.log(`[MAINTENANCE SUKSES] ${totalFileDibuat} file arsip ditulis, ${totalBarisDihapus} baris tua dibersihkan dari MySQL.`);
+            console.log(`[MAINTENANCE SUKSES] ${totalFileDibuat} file arsip ditulis, ${totalBarisDihapus} baris tua dibersihkan.`);
         } else {
             console.log('[MAINTENANCE] Database masih bersih (belum ada minggu tua > 40 hari yang perlu dibersihkan).');
         }
 
         return { success: true, totalFileDibuat, totalBarisDihapus };
-
     } catch (err) {
         await connection.rollback();
-        console.error('[MAINTENANCE ERROR] Gagal mengeksekusi pembersihan:', err.message);
+        console.error('[MAINTENANCE ERROR]', err.message);
         throw err;
     } finally {
         connection.release();
     }
 }
 
-// Endpoint jika ingin memanggil maintenance secara manual via URL/UI
 app.post('/api/maintenance/run', async (req, res) => {
     try {
         const hasil = await jalankanMaintenanceLokal();
@@ -329,91 +333,53 @@ app.post('/api/maintenance/run', async (req, res) => {
     }
 });
 
-// Port Server Local
-const PORT = 3000;
-// =========================================================================
-// API ENDPOINTS UNTUK BACA REKAP BULANAN (SIAP DIDISPLAY KE UI/CHART)
-// =========================================================================
-
-// 1. Ambil Data Rekap Bulanan Latihan
+// Endpoint Rekap & Arsip Inspector
 app.get('/api/rekap/latihan', async (req, res) => {
     try {
-        const [rows] = await db.promise().query(`
-            SELECT * FROM rekap_bulanan_latihan 
-            ORDER BY bulan_tahun DESC
-        `);
+        const [rows] = await db.promise().query('SELECT * FROM rekap_bulanan_latihan ORDER BY bulan_tahun DESC');
         res.json({ success: true, data: rows });
-    } catch (err) {
-        res.status(500).json({ success: false, error: err.message });
-    }
+    } catch (err) { res.status(500).json({ success: false, error: err.message }); }
 });
 
-// 2. Ambil Data Rekap Bulanan Asupan & Puasa
 app.get('/api/rekap/asupan', async (req, res) => {
     try {
-        const [rows] = await db.promise().query(`
-            SELECT * FROM rekap_bulanan_asupan 
-            ORDER BY bulan_tahun DESC
-        `);
+        const [rows] = await db.promise().query('SELECT * FROM rekap_bulanan_asupan ORDER BY bulan_tahun DESC');
         res.json({ success: true, data: rows });
-    } catch (err) {
-        res.status(500).json({ success: false, error: err.message });
-    }
+    } catch (err) { res.status(500).json({ success: false, error: err.message }); }
 });
 
-// 3. Ambil Data Rekap Bulanan Kegiatan
 app.get('/api/rekap/kegiatan', async (req, res) => {
     try {
-        const [rows] = await db.promise().query(`
-            SELECT * FROM rekap_bulanan_kegiatan 
-            ORDER BY bulan_tahun DESC
-        `);
+        const [rows] = await db.promise().query('SELECT * FROM rekap_bulanan_kegiatan ORDER BY bulan_tahun DESC');
         res.json({ success: true, data: rows });
-    } catch (err) {
-        res.status(500).json({ success: false, error: err.message });
-    }
+    } catch (err) { res.status(500).json({ success: false, error: err.message }); }
 });
 
-// =========================================================================
-// API ENDPOINTS UNTUK INSPEKSI FILE ARSIP MENTAHAN JSON
-// =========================================================================
-
-// List Semua File Arsip yang Ada di Folder /archives
 app.get('/api/archives/list', (req, res) => {
     const folderArsip = path.join(__dirname, 'archives');
-    if (!fs.existsSync(folderArsip)) {
-        return res.json({ success: true, files: [] });
-    }
-
+    if (!fs.existsSync(folderArsip)) return res.json({ success: true, files: [] });
     const files = fs.readdirSync(folderArsip).filter(f => f.endsWith('.json'));
     res.json({ success: true, files });
 });
 
-// Baca Isi Detail Salah Satu File JSON Arsip Mentahan
 app.get('/api/archives/read/:filename', (req, res) => {
-    const filename = req.params.filename;
-    // Mencegah directory traversal attack
-    const safeFilename = path.basename(filename);
-    const lokasiFile = path.join(__dirname, 'archives', safeFilename);
-
-    if (!fs.existsSync(lokasiFile)) {
-        return res.status(404).json({ success: false, error: 'File arsip tidak ditemukan' });
-    }
+    const filename = path.basename(req.params.filename);
+    const lokasiFile = path.join(__dirname, 'archives', filename);
+    if (!fs.existsSync(lokasiFile)) return res.status(404).json({ success: false, error: 'File arsip tidak ditemukan' });
 
     try {
         const content = fs.readFileSync(lokasiFile, 'utf-8');
-        res.json({ success: true, filename: safeFilename, data: JSON.parse(content) });
+        res.json({ success: true, filename, data: JSON.parse(content) });
     } catch (err) {
         res.status(500).json({ success: false, error: 'Gagal membaca file arsip: ' + err.message });
     }
 });
-app.listen(PORT, async () => {
-    console.log(`Server tracker harian berjalan di http://localhost:${PORT}`);
 
-    // Otomatis jalankan pengecekan maintenance setiap kali server baru dinyalakan
+// Jalankan Server Tunggal
+const PORT = 3000;
+app.listen(PORT, '0.0.0.0', async () => {
+    console.log(`Server tracker harian berjalan di http://localhost:${PORT}`);
     try {
         await jalankanMaintenanceLokal();
-    } catch (e) {
-        // Log error di catch agar server tetap berjalan normal jika MySQL belum siap
-    }
+    } catch (e) {}
 });

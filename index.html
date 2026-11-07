@@ -1,263 +1,224 @@
 <!DOCTYPE html>
 <html lang="id">
-
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Daily Tracker & Analytics</title>
     <style>
-        * {
-            box-sizing: border-box;
+        * { box-sizing: border-box; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
+            margin: 0; 
+            padding: 12px; 
+            background: #f4f6f9; 
+            color: #333; 
+            -webkit-tap-highlight-color: transparent;
         }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 20px;
-            background: #f4f6f9;
-            color: #333;
+        .container { 
+            max-width: 1100px; 
+            margin: 0 auto; 
+            background: #fff; 
+            padding: 20px; 
+            border-radius: 12px; 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05); 
         }
-
-        .container {
-            max-width: 1100px;
-            margin: 0 auto;
-            background: #fff;
-            padding: 25px;
-            border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        h2 { 
+            margin-top: 0; 
+            font-size: 1.5rem;
+            color: #1e293b; 
+            border-bottom: 2px solid #e2e8f0; 
+            padding-bottom: 10px; 
         }
-
-        h2 {
-            margin-top: 0;
-            color: #1e293b;
-            border-bottom: 2px solid #e2e8f0;
-            padding-bottom: 10px;
+        
+        /* Navigasi Tab Responsif (Swipe Samping di HP) */
+        .nav-tabs { 
+            display: flex; 
+            gap: 8px; 
+            margin-bottom: 20px; 
+            border-bottom: 2px solid #e2e8f0; 
+            padding-bottom: 8px; 
+            overflow-x: auto; 
+            white-space: nowrap; 
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none; /* Firefox */
         }
-
-        /* Navigation Tabs */
-        .nav-tabs {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 20px;
-            border-bottom: 2px solid #e2e8f0;
-            padding-bottom: 10px;
-            flex-wrap: wrap;
-        }
-
-        .tab-btn {
-            padding: 10px 18px;
-            border: none;
-            background: #f1f5f9;
-            color: #475569;
-            cursor: pointer;
-            border-radius: 6px;
-            font-weight: 600;
-            transition: all 0.2s;
-        }
-
-        .tab-btn:hover {
-            background: #e2e8f0;
-        }
-
-        .tab-btn.active {
-            background: #0284c7;
-            color: #fff;
-        }
-
-        .tab-content {
-            display: none;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
-        /* Form & Input Layout */
-        .form-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 12px;
-            background: #f8fafc;
-            padding: 15px;
-            border-radius: 8px;
-            border: 1px solid #e2e8f0;
-            margin-bottom: 20px;
-        }
-
-        .form-group {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .form-group label {
-            font-size: 0.85rem;
-            font-weight: 600;
-            color: #64748b;
-            margin-bottom: 4px;
-        }
-
-        .form-group input,
-        .form-group select {
-            padding: 8px 12px;
-            border: 1px solid #cbd5e1;
-            border-radius: 6px;
-            font-size: 0.95rem;
-        }
-
-        .btn-submit {
-            background: #0284c7;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 600;
-            margin-top: 10px;
-        }
-
-        .btn-submit:hover {
-            background: #0369a1;
-        }
-
-        .btn-danger {
-            background: #ef4444;
-            color: white;
-            border: none;
-            padding: 4px 8px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 0.8rem;
-        }
-
-        .btn-danger:hover {
-            background: #dc2626;
-        }
-
-        .btn-action {
-            background: #10b981;
-            color: white;
-            border: none;
-            padding: 10px 18px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 600;
-        }
-
-        .btn-action:hover {
-            background: #059669;
-        }
-
-        /* Tables & Cards */
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
-        }
-
-        th,
-        td {
-            border: 1px solid #e2e8f0;
-            padding: 10px;
-            text-align: left;
+        .nav-tabs::-webkit-scrollbar { display: none; } /* Chrome/Safari */
+        
+        .tab-btn { 
+            flex: 0 0 auto;
+            padding: 10px 16px; 
+            border: none; 
+            background: #f1f5f9; 
+            color: #475569; 
+            cursor: pointer; 
+            border-radius: 8px; 
+            font-weight: 600; 
             font-size: 0.9rem;
+            transition: all 0.2s; 
+        }
+        .tab-btn:hover { background: #e2e8f0; }
+        .tab-btn.active { background: #0284c7; color: #fff; }
+        
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        /* Form Grid Layout */
+        .form-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
+            gap: 12px; 
+            background: #f8fafc; 
+            padding: 16px; 
+            border-radius: 10px; 
+            border: 1px solid #e2e8f0; 
+            margin-bottom: 15px; 
+        }
+        .form-group { display: flex; flex-direction: column; }
+        .form-group label { font-size: 0.85rem; font-weight: 600; color: #64748b; margin-bottom: 6px; }
+        
+        .form-group input, .form-group select { 
+            padding: 12px; 
+            border: 1px solid #cbd5e1; 
+            border-radius: 8px; 
+            font-size: 1rem; /* 16px mencegah auto-zoom iOS */
+            outline: none;
+            background: #fff;
+        }
+        .form-group input:focus, .form-group select:focus {
+            border-color: #0284c7;
+            box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+        }
+        
+        /* Tombol Touch-Friendly */
+        .btn-submit { 
+            width: 100%; 
+            background: #0284c7; 
+            color: white; 
+            border: none; 
+            padding: 14px; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-size: 1rem;
+            font-weight: 600; 
+            margin-top: 5px; 
+            touch-action: manipulation;
+        }
+        .btn-submit:active { background: #0369a1; transform: scale(0.99); }
+        .btn-submit:disabled { background: #94a3b8; cursor: not-allowed; }
+        
+        .btn-danger { 
+            background: #ef4444; 
+            color: white; 
+            border: none; 
+            padding: 8px 12px; 
+            border-radius: 6px; 
+            cursor: pointer; 
+            font-size: 0.85rem; 
+            font-weight: 600;
+        }
+        .btn-action { 
+            width: 100%;
+            background: #10b981; 
+            color: white; 
+            border: none; 
+            padding: 14px; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-size: 1rem;
+            font-weight: 600; 
         }
 
-        th {
-            background: #f8fafc;
-            color: #475569;
-        }
-
-        .grid-cards {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-
-        .card {
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
+        /* Responsive Table Wrapper (Mencegah Layar Rusak di HP) */
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
             border-radius: 8px;
-            padding: 15px;
+            border: 1px solid #e2e8f0;
+            margin-top: 15px;
         }
+        table { width: 100%; border-collapse: collapse; min-width: 600px; }
+        th, td { border-bottom: 1px solid #e2e8f0; padding: 12px; text-align: left; font-size: 0.9rem; }
+        th { background: #f8fafc; color: #475569; font-weight: 600; }
+        tr:last-child td { border-bottom: none; }
+        
+        /* Cards & Viewers */
+        .grid-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-bottom: 20px; }
+        .card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 15px; }
+        .card h4 { margin: 0 0 8px 0; color: #334155; font-size: 1rem; }
+        pre { background: #0f172a; color: #f8fafc; padding: 15px; border-radius: 8px; max-height: 350px; overflow: auto; font-size: 0.85rem; font-family: monospace; }
 
-        .card h4 {
-            margin: 0 0 10px 0;
-            color: #334155;
-        }
-
-        pre {
-            background: #0f172a;
-            color: #f8fafc;
-            padding: 15px;
-            border-radius: 6px;
-            max-height: 350px;
-            overflow-y: auto;
-            font-family: monospace;
+        /* Media Queries Khusus Layar HP (< 640px) */
+        @media (max-width: 640px) {
+            body { padding: 8px; }
+            .container { padding: 15px; border-radius: 10px; }
+            h2 { font-size: 1.25rem; }
+            .form-grid { grid-template-columns: 1fr; padding: 12px; }
+            .grid-cards { grid-template-columns: 1fr; }
         }
     </style>
 </head>
-
 <body>
 
-    <div class="container">
-        <h2>Tracker Harian & Analytics</h2>
+<div class="container">
+    <h2>Daily Tracker</h2>
+    
+    <!-- Tab Navigasi Horizontal Scroll -->
+    <div class="nav-tabs">
+        <button class="tab-btn active" onclick="switchTab('tab-latihan')">Latihan</button>
+        <button class="tab-btn" onclick="switchTab('tab-asupan')">Asupan & Puasa</button>
+        <button class="tab-btn" onclick="switchTab('tab-kegiatan')">Kegiatan</button>
+        <button class="tab-btn" onclick="switchTab('tab-rekap')">Rekap Bulanan</button>
+        <button class="tab-btn" onclick="switchTab('tab-arsip')">Inspeksi Arsip</button>
+        <button class="tab-btn" onclick="switchTab('tab-system')">Maintenance</button>
+    </div>
 
-        <!-- Tab Navigasi Utama -->
-        <div class="nav-tabs">
-            <button class="tab-btn active" onclick="switchTab('tab-latihan')">Latihan</button>
-            <button class="tab-btn" onclick="switchTab('tab-asupan')">Asupan & Puasa</button>
-            <button class="tab-btn" onclick="switchTab('tab-kegiatan')">Kegiatan</button>
-            <button class="tab-btn" onclick="switchTab('tab-rekap')">Rekap Bulanan</button>
-            <button class="tab-btn" onclick="switchTab('tab-arsip')">Inspeksi Arsip</button>
-            <button class="tab-btn" onclick="switchTab('tab-system')">Maintenance</button>
-        </div>
-
-        <!-- 1. TAB LATIHAN -->
-        <div id="tab-latihan" class="tab-content active">
-            <h3>Input Log Latihan</h3>
-            <form id="form-latihan" onsubmit="simpanLatihan(event)">
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label>Tanggal</label>
-                        <input type="date" id="lat-tanggal" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Kategori</label>
-                        <select id="lat-kategori" onchange="toggleFormLatihan()" required>
-                            <option value="Gym">Gym</option>
-                            <option value="Kardio">Kardio</option>
-                            <option value="Peregangan">Peregangan</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Nama Gerakan / Olahraga</label>
-                        <input type="text" id="lat-nama" placeholder="Contoh: Push Up / Running" required>
-                    </div>
-                    <div class="form-group field-gym">
-                        <label>Set</label>
-                        <input type="number" id="lat-set" value="1" min="1">
-                    </div>
-                    <div class="form-group field-gym">
-                        <label>Repetisi</label>
-                        <input type="number" id="lat-reps" value="10" min="1">
-                    </div>
-                    <div class="form-group field-gym">
-                        <label>Beban (kg)</label>
-                        <input type="number" id="lat-beban" value="0" min="0" step="0.5">
-                    </div>
-                    <div class="form-group field-kardio">
-                        <label>Durasi (Menit)</label>
-                        <input type="number" id="lat-durasi" value="0" min="0">
-                    </div>
-                    <div class="form-group">
-                        <label>Catatan</label>
-                        <input type="text" id="lat-catatan" placeholder="Opsional">
-                    </div>
+    <!-- 1. TAB LATIHAN -->
+    <div id="tab-latihan" class="tab-content active">
+        <form id="form-latihan" onsubmit="simpanLatihan(event)">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Tanggal</label>
+                    <input type="date" id="lat-tanggal" required>
                 </div>
-                <button type="submit" class="btn-submit">Simpan Latihan</button>
-            </form>
+                <div class="form-group">
+                    <label>Kategori</label>
+                    <select id="lat-kategori" onchange="toggleFormLatihan()" required>
+                        <option value="Gym">Gym</option>
+                        <option value="Kardio">Kardio</option>
+                        <option value="Peregangan">Peregangan</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Nama Gerakan / Olahraga</label>
+                    <input type="text" id="lat-nama" placeholder="Contoh: Push Up / Running" required>
+                </div>
+                <div class="form-group field-gym">
+                    <label>Set</label>
+                    <input type="number" id="lat-set" value="1" min="1">
+                </div>
+                <div class="form-group field-gym">
+                    <label>Repetisi</label>
+                    <input type="number" id="lat-reps" value="10" min="1">
+                </div>
+                <div class="form-group field-gym">
+                    <label>Beban (kg)</label>
+                    <input type="number" id="lat-beban" value="0" min="0" step="0.5">
+                </div>
+                <div class="form-group field-kardio">
+                    <label>Durasi (Menit)</label>
+                    <input type="number" id="lat-durasi" value="0" min="0">
+                </div>
+                <div class="form-group">
+                    <label>Catatan</label>
+                    <input type="text" id="lat-catatan" placeholder="Opsional">
+                </div>
+            </div>
+            <button type="submit" class="btn-submit">Simpan Latihan</button>
+        </form>
 
-            <h4 style="margin-top: 30px;">Riwayat Latihan Aktif (40 Hari Terakhir)</h4>
+        <h4 style="margin-top: 25px; margin-bottom: 8px;">Riwayat Latihan (40 Hari)</h4>
+        <div class="table-responsive">
             <table id="table-latihan">
                 <thead>
                     <tr>
@@ -274,40 +235,41 @@
                 <tbody></tbody>
             </table>
         </div>
+    </div>
 
-        <!-- 2. TAB ASUPAN -->
-        <div id="tab-asupan" class="tab-content">
-            <h3>Input Log Asupan & Puasa</h3>
-            <form id="form-asupan" onsubmit="simpanAsupan(event)">
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label>Tanggal</label>
-                        <input type="date" id="asu-tanggal" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Waktu Konsumsi / Status</label>
-                        <select id="asu-waktu" required>
-                            <option value="Makanan Utama">Makanan Utama</option>
-                            <option value="Sahur">Sahur</option>
-                            <option value="Buka Puasa">Buka Puasa</option>
-                            <option value="Puasa Full">Puasa Full (Tanpa Makan)</option>
-                            <option value="Cemilan">Cemilan</option>
-                            <option value="Minuman">Minuman</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Nama Makanan / Minuman</label>
-                        <input type="text" id="asu-nama" placeholder="Contoh: Oatmeal & Pisang / Air Putih" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Catatan</label>
-                        <input type="text" id="asu-catatan" placeholder="Opsional">
-                    </div>
+    <!-- 2. TAB ASUPAN -->
+    <div id="tab-asupan" class="tab-content">
+        <form id="form-asupan" onsubmit="simpanAsupan(event)">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Tanggal</label>
+                    <input type="date" id="asu-tanggal" required>
                 </div>
-                <button type="submit" class="btn-submit">Simpan Asupan</button>
-            </form>
+                <div class="form-group">
+                    <label>Waktu Konsumsi / Status</label>
+                    <select id="asu-waktu" required>
+                        <option value="Makanan Utama">Makanan Utama</option>
+                        <option value="Sahur">Sahur</option>
+                        <option value="Buka Puasa">Buka Puasa</option>
+                        <option value="Puasa Full">Puasa Full (Tanpa Makan)</option>
+                        <option value="Cemilan">Cemilan</option>
+                        <option value="Minuman">Minuman</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Nama Makanan / Minuman</label>
+                    <input type="text" id="asu-nama" placeholder="Contoh: Oatmeal & Pisang" required>
+                </div>
+                <div class="form-group">
+                    <label>Catatan</label>
+                    <input type="text" id="asu-catatan" placeholder="Opsional">
+                </div>
+            </div>
+            <button type="submit" class="btn-submit">Simpan Asupan</button>
+        </form>
 
-            <h4 style="margin-top: 30px;">Riwayat Asupan Aktif (40 Hari Terakhir)</h4>
+        <h4 style="margin-top: 25px; margin-bottom: 8px;">Riwayat Asupan (40 Hari)</h4>
+        <div class="table-responsive">
             <table id="table-asupan">
                 <thead>
                     <tr>
@@ -321,37 +283,38 @@
                 <tbody></tbody>
             </table>
         </div>
+    </div>
 
-        <!-- 3. TAB KEGIATAN -->
-        <div id="tab-kegiatan" class="tab-content">
-            <h3>Input Log Kegiatan Produktif</h3>
-            <form id="form-kegiatan" onsubmit="simpanKegiatan(event)">
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label>Tanggal</label>
-                        <input type="date" id="keg-tanggal" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Nama Kegiatan</label>
-                        <input type="text" id="keg-nama" placeholder="Contoh: Koding SYS.CORE / Kuliah" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Waktu Mulai</label>
-                        <input type="time" id="keg-mulai" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Waktu Selesai</label>
-                        <input type="time" id="keg-selesai" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Catatan</label>
-                        <input type="text" id="keg-catatan" placeholder="Opsional">
-                    </div>
+    <!-- 3. TAB KEGIATAN -->
+    <div id="tab-kegiatan" class="tab-content">
+        <form id="form-kegiatan" onsubmit="simpanKegiatan(event)">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Tanggal</label>
+                    <input type="date" id="keg-tanggal" required>
                 </div>
-                <button type="submit" class="btn-submit">Simpan Kegiatan</button>
-            </form>
+                <div class="form-group">
+                    <label>Nama Kegiatan</label>
+                    <input type="text" id="keg-nama" placeholder="Contoh: Koding / Kuliah" required>
+                </div>
+                <div class="form-group">
+                    <label>Waktu Mulai</label>
+                    <input type="time" id="keg-mulai" required>
+                </div>
+                <div class="form-group">
+                    <label>Waktu Selesai</label>
+                    <input type="time" id="keg-selesai" required>
+                </div>
+                <div class="form-group">
+                    <label>Catatan</label>
+                    <input type="text" id="keg-catatan" placeholder="Opsional">
+                </div>
+            </div>
+            <button type="submit" class="btn-submit">Simpan Kegiatan</button>
+        </form>
 
-            <h4 style="margin-top: 30px;">Riwayat Kegiatan Aktif (40 Hari Terakhir)</h4>
+        <h4 style="margin-top: 25px; margin-bottom: 8px;">Riwayat Kegiatan (40 Hari)</h4>
+        <div class="table-responsive">
             <table id="table-kegiatan">
                 <thead>
                     <tr>
@@ -366,26 +329,28 @@
                 <tbody></tbody>
             </table>
         </div>
+    </div>
 
-        <!-- 4. TAB REKAP BULANAN -->
-        <div id="tab-rekap" class="tab-content">
-            <h3>Statistik & Rekapitulasi Bulanan (Permanen)</h3>
-            <div class="grid-cards">
-                <div class="card">
-                    <h4>Latihan (Bulan Terakhir)</h4>
-                    <div id="summary-latihan">Memuat data...</div>
-                </div>
-                <div class="card">
-                    <h4>Asupan & Puasa</h4>
-                    <div id="summary-asupan">Memuat data...</div>
-                </div>
-                <div class="card">
-                    <h4>Kegiatan & Jam Produktif</h4>
-                    <div id="summary-kegiatan">Memuat data...</div>
-                </div>
+    <!-- 4. TAB REKAP BULANAN -->
+    <div id="tab-rekap" class="tab-content">
+        <h3 style="margin-top:0;">Statistik Bulanan</h3>
+        <div class="grid-cards">
+            <div class="card">
+                <h4>Latihan (Bulan Terakhir)</h4>
+                <div id="summary-latihan">Memuat data...</div>
             </div>
+            <div class="card">
+                <h4>Asupan & Puasa</h4>
+                <div id="summary-asupan">Memuat data...</div>
+            </div>
+            <div class="card">
+                <h4>Kegiatan & Jam Produktif</h4>
+                <div id="summary-kegiatan">Memuat data...</div>
+            </div>
+        </div>
 
-            <h4>Tabel Histori Rekap Latihan</h4>
+        <h4>Tabel Histori Rekap Latihan</h4>
+        <div class="table-responsive">
             <table id="table-rekap-latihan">
                 <thead>
                     <tr>
@@ -401,79 +366,78 @@
                 <tbody></tbody>
             </table>
         </div>
-
-        <!-- 5. TAB INSPEKSI ARSIP -->
-        <div id="tab-arsip" class="tab-content">
-            <h3>Inspeksi Berkas Arsip Mentah (.json)</h3>
-            <p>Pilih file arsip mingguan yang sudah dipindahkan dari MySQL ke harddisk laptop:</p>
-            <select id="select-archive-file" onchange="bacaFileArsip()"
-                style="padding: 8px; width: 100%; max-width: 400px;">
-                <option value="">-- Pilih Berkas Arsip --</option>
-            </select>
-            <h4 style="margin-top: 20px;">Isi Mentah Data JSON:</h4>
-            <pre id="json-viewer">// Pilih file di atas untuk menampilkan isi JSON</pre>
-        </div>
-
-        <!-- 6. TAB SYSTEM MAINTENANCE -->
-        <div id="tab-system" class="tab-content">
-            <h3>Pemeliharaan Database Manual</h3>
-            <p>Proses ini otomatis mengeksekusi setiap kali server Node.js dinyalakan. Kamu juga bisa memicunya secara
-                manual di bawah ini:</p>
-            <button class="btn-action" onclick="jalankanMaintenance()">Jalankan Pembersihan Sekarang</button>
-            <div id="maintenance-status" style="margin-top: 15px; font-weight: bold;"></div>
-        </div>
     </div>
 
-    <script>
-        // Set default tanggal input ke Hari Ini (YYYY-MM-DD)
-        // 1. Format tanggal lokal (WIB) murni YYYY-MM-DD
-        const now = new Date();
-        const year = now.getFullYear();
-        const month = String(now.getMonth() + 1).padStart(2, '0');
-        const day = String(now.getDate()).padStart(2, '0');
-        const today = `${year}-${month}-${day}`;
+    <!-- 5. TAB INSPEKSI ARSIP -->
+    <div id="tab-arsip" class="tab-content">
+        <h3 style="margin-top:0;">Inspeksi Berkas Arsip (.json)</h3>
+        <p style="font-size: 0.9rem; color: #64748b;">Pilih file arsip mingguan yang tersimpan di laptop:</p>
+        <select id="select-archive-file" onchange="bacaFileArsip()" style="padding: 12px; width: 100%; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 1rem;">
+            <option value="">-- Pilih Berkas Arsip --</option>
+        </select>
+        <h4 style="margin-top: 20px;">Isi Mentah Data JSON:</h4>
+        <pre id="json-viewer">// Pilih file di atas untuk menampilkan isi JSON</pre>
+    </div>
 
-        // 2. Set default value dan kunci batas max sekaligus
-        const inputs = ['lat-tanggal', 'asu-tanggal', 'keg-tanggal'];
-        inputs.forEach(id => {
-            const el = document.getElementById(id);
-            if (el) {
-                el.value = today;
-                el.max = today; // Kunci kalender agar tidak bisa pilih tanggal besok
-            }
-        });
+    <!-- 6. TAB SYSTEM MAINTENANCE -->
+    <div id="tab-system" class="tab-content">
+        <h3 style="margin-top:0;">Pemeliharaan Database</h3>
+        <p style="font-size: 0.9rem; color: #64748b;">Proses pengarsipan berjalan otomatis saat server dinyalakan. Kamu juga bisa memicunya manual:</p>
+        <button class="btn-action" onclick="jalankanMaintenance()">Jalankan Pembersihan Sekarang</button>
+        <div id="maintenance-status" style="margin-top: 15px; font-weight: bold; font-size: 0.95rem;"></div>
+    </div>
+</div>
 
-        // Tab Navigation Switcher
-        function switchTab(tabId) {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+<script>
+  
+    // Fix Tanggal Lokal Presisi WIB YYYY-MM-DD
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const today = `${year}-${month}-${day}`;
 
-            document.getElementById(tabId).classList.add('active');
-            event.target.classList.add('active');
-
-            if (tabId === 'tab-latihan') loadLatihan();
-            if (tabId === 'tab-asupan') loadAsupan();
-            if (tabId === 'tab-kegiatan') loadKegiatan();
-            if (tabId === 'tab-rekap') loadDataRekap();
-            if (tabId === 'tab-arsip') loadDaftarArsip();
+    // Set default value & max tanggal
+    const inputs = ['lat-tanggal', 'asu-tanggal', 'keg-tanggal'];
+    inputs.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            el.value = today;
+            el.max = today;
         }
+    });
 
-        function toggleFormLatihan() {
-            const kat = document.getElementById('lat-kategori').value;
-            document.querySelectorAll('.field-gym').forEach(el => el.style.display = (kat === 'Gym') ? 'flex' : 'none');
-            document.querySelectorAll('.field-kardio').forEach(el => el.style.display = (kat === 'Kardio') ? 'flex' : 'none');
-        }
-        toggleFormLatihan();
+    // Tab Switcher
+    function switchTab(tabId) {
+        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+        
+        document.getElementById(tabId).classList.add('active');
+        event.target.classList.add('active');
 
-        // --- CRUD LATIHAN ---
-        async function loadLatihan() {
-            const res = await fetch('/api/latihan');
-            const result = await res.json();
-            const tbody = document.querySelector('#table-latihan tbody');
-            tbody.innerHTML = '';
-            if (result.data) {
-                result.data.forEach(row => {
-                    tbody.innerHTML += `
+        if (tabId === 'tab-latihan') loadLatihan();
+        if (tabId === 'tab-asupan') loadAsupan();
+        if (tabId === 'tab-kegiatan') loadKegiatan();
+        if (tabId === 'tab-rekap') loadDataRekap();
+        if (tabId === 'tab-arsip') loadDaftarArsip();
+    }
+
+    function toggleFormLatihan() {
+        const kat = document.getElementById('lat-kategori').value;
+        document.querySelectorAll('.field-gym').forEach(el => el.style.display = (kat === 'Gym') ? 'flex' : 'none');
+        document.querySelectorAll('.field-kardio').forEach(el => el.style.display = (kat === 'Kardio') ? 'flex' : 'none');
+    }
+    toggleFormLatihan();
+
+    // --- CRUD LATIHAN ---
+    async function loadLatihan() {
+        const res = await fetch('/api/latihan');
+        const result = await res.json();
+        const tbody = document.querySelector('#table-latihan tbody');
+        tbody.innerHTML = '';
+        if (result.data) {
+            result.data.forEach(row => {
+                tbody.innerHTML += `
                     <tr>
                         <td>${row.tanggal}</td>
                         <td><b>${row.kategori}</b></td>
@@ -485,61 +449,54 @@
                         <td><button class="btn-danger" onclick="hapusRow('latihan', ${row.id})">Hapus</button></td>
                     </tr>
                 `;
-                });
-            }
+            });
         }
+    }
 
-        // 1. Simpan Latihan dengan Button Lock
-        async function simpanLatihan(e) {
-            e.preventDefault();
-            const btn = e.target.querySelector('button[type="submit"]');
-            btn.disabled = true;
-            btn.textContent = 'Menyimpan...';
+    async function simpanLatihan(e) {
+        e.preventDefault();
+        const btn = e.target.querySelector('button[type="submit"]');
+        btn.disabled = true;
+        btn.textContent = 'Menyimpan...';
 
-            try {
-                const body = {
-                    tanggal: document.getElementById('lat-tanggal').value,
-                    kategori: document.getElementById('lat-kategori').value,
-                    nama_gerakan: document.getElementById('lat-nama').value,
-                    set_latihan: document.getElementById('lat-set').value,
-                    repetisi: document.getElementById('lat-reps').value,
-                    beban_kg: document.getElementById('lat-beban').value,
-                    durasi_menit: document.getElementById('lat-durasi').value,
-                    catatan: document.getElementById('lat-catatan').value
-                };
-
-                const res = await fetch('/api/latihan', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(body)
-                });
-                const result = await res.json();
-
-                if (result.error) {
-                    alert(result.error);
-                } else {
-                    document.getElementById('form-latihan').reset();
-                    document.getElementById('lat-tanggal').value = today;
-                    toggleFormLatihan();
-                    loadLatihan();
-                }
-            } catch (err) {
-                alert('Gagal menghubungi server!');
-            } finally {
-                btn.disabled = false;
-                btn.textContent = 'Simpan Latihan';
-            }
-        }
-
-        // --- CRUD ASUPAN ---
-        async function loadAsupan() {
-            const res = await fetch('/api/asupan');
+        try {
+            const body = {
+                tanggal: document.getElementById('lat-tanggal').value,
+                kategori: document.getElementById('lat-kategori').value,
+                nama_gerakan: document.getElementById('lat-nama').value,
+                set_latihan: document.getElementById('lat-set').value,
+                repetisi: document.getElementById('lat-reps').value,
+                beban_kg: document.getElementById('lat-beban').value,
+                durasi_menit: document.getElementById('lat-durasi').value,
+                catatan: document.getElementById('lat-catatan').value
+            };
+            const res = await fetch('/api/latihan', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
             const result = await res.json();
-            const tbody = document.querySelector('#table-asupan tbody');
-            tbody.innerHTML = '';
-            if (result.data) {
-                result.data.forEach(row => {
-                    tbody.innerHTML += `
+
+            if (result.error) alert(result.error);
+            else {
+                document.getElementById('form-latihan').reset();
+                document.getElementById('lat-tanggal').value = today;
+                toggleFormLatihan();
+                loadLatihan();
+            }
+        } catch (err) {
+            alert('Gagal menghubungi server!');
+        } finally {
+            btn.disabled = false;
+            btn.textContent = 'Simpan Latihan';
+        }
+    }
+
+    // --- CRUD ASUPAN ---
+    async function loadAsupan() {
+        const res = await fetch('/api/asupan');
+        const result = await res.json();
+        const tbody = document.querySelector('#table-asupan tbody');
+        tbody.innerHTML = '';
+        if (result.data) {
+            result.data.forEach(row => {
+                tbody.innerHTML += `
                     <tr>
                         <td>${row.tanggal}</td>
                         <td><b>${row.waktu_konsumsi}</b></td>
@@ -548,56 +505,49 @@
                         <td><button class="btn-danger" onclick="hapusRow('asupan', ${row.id})">Hapus</button></td>
                     </tr>
                 `;
-                });
-            }
+            });
         }
+    }
 
-        // 2. Simpan Asupan dengan Button Lock
-        async function simpanAsupan(e) {
-            e.preventDefault();
-            const btn = e.target.querySelector('button[type="submit"]');
-            btn.disabled = true;
-            btn.textContent = 'Menyimpan...';
+    async function simpanAsupan(e) {
+        e.preventDefault();
+        const btn = e.target.querySelector('button[type="submit"]');
+        btn.disabled = true;
+        btn.textContent = 'Menyimpan...';
 
-            try {
-                const body = {
-                    tanggal: document.getElementById('asu-tanggal').value,
-                    waktu_konsumsi: document.getElementById('asu-waktu').value,
-                    nama_item: document.getElementById('asu-nama').value,
-                    catatan: document.getElementById('asu-catatan').value
-                };
-
-                const res = await fetch('/api/asupan', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(body)
-                });
-                const result = await res.json();
-
-                if (result.error) {
-                    alert(result.error);
-                } else {
-                    document.getElementById('form-asupan').reset();
-                    document.getElementById('asu-tanggal').value = today;
-                    loadAsupan();
-                }
-            } catch (err) {
-                alert('Gagal menghubungi server!');
-            } finally {
-                btn.disabled = false;
-                btn.textContent = 'Simpan Asupan';
-            }
-        }
-
-        // --- CRUD KEGIATAN ---
-        async function loadKegiatan() {
-            const res = await fetch('/api/kegiatan');
+        try {
+            const body = {
+                tanggal: document.getElementById('asu-tanggal').value,
+                waktu_konsumsi: document.getElementById('asu-waktu').value,
+                nama_item: document.getElementById('asu-nama').value,
+                catatan: document.getElementById('asu-catatan').value
+            };
+            const res = await fetch('/api/asupan', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
             const result = await res.json();
-            const tbody = document.querySelector('#table-kegiatan tbody');
-            tbody.innerHTML = '';
-            if (result.data) {
-                result.data.forEach(row => {
-                    tbody.innerHTML += `
+
+            if (result.error) alert(result.error);
+            else {
+                document.getElementById('form-asupan').reset();
+                document.getElementById('asu-tanggal').value = today;
+                loadAsupan();
+            }
+        } catch (err) {
+            alert('Gagal menghubungi server!');
+        } finally {
+            btn.disabled = false;
+            btn.textContent = 'Simpan Asupan';
+        }
+    }
+
+    // --- CRUD KEGIATAN ---
+    async function loadKegiatan() {
+        const res = await fetch('/api/kegiatan');
+        const result = await res.json();
+        const tbody = document.querySelector('#table-kegiatan tbody');
+        tbody.innerHTML = '';
+        if (result.data) {
+            result.data.forEach(row => {
+                tbody.innerHTML += `
                     <tr>
                         <td>${row.tanggal}</td>
                         <td><b>${row.nama_kegiatan}</b></td>
@@ -607,73 +557,66 @@
                         <td><button class="btn-danger" onclick="hapusRow('kegiatan', ${row.id})">Hapus</button></td>
                     </tr>
                 `;
-                });
-            }
+            });
         }
+    }
 
-        // 3. Simpan Kegiatan dengan Button Lock
-        async function simpanKegiatan(e) {
-            e.preventDefault();
-            const btn = e.target.querySelector('button[type="submit"]');
-            btn.disabled = true;
-            btn.textContent = 'Menyimpan...';
+    async function simpanKegiatan(e) {
+        e.preventDefault();
+        const btn = e.target.querySelector('button[type="submit"]');
+        btn.disabled = true;
+        btn.textContent = 'Menyimpan...';
 
-            try {
-                const body = {
-                    tanggal: document.getElementById('keg-tanggal').value,
-                    nama_kegiatan: document.getElementById('keg-nama').value,
-                    waktu_mulai: document.getElementById('keg-mulai').value,
-                    waktu_selesai: document.getElementById('keg-selesai').value,
-                    catatan: document.getElementById('keg-catatan').value
-                };
+        try {
+            const body = {
+                tanggal: document.getElementById('keg-tanggal').value,
+                nama_kegiatan: document.getElementById('keg-nama').value,
+                waktu_mulai: document.getElementById('keg-mulai').value,
+                waktu_selesai: document.getElementById('keg-selesai').value,
+                catatan: document.getElementById('keg-catatan').value
+            };
+            const res = await fetch('/api/kegiatan', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+            const result = await res.json();
 
-                const res = await fetch('/api/kegiatan', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(body)
-                });
-                const result = await res.json();
-
-                if (result.error) {
-                    alert(result.error);
-                } else {
-                    document.getElementById('form-kegiatan').reset();
-                    document.getElementById('keg-tanggal').value = today;
-                    loadKegiatan();
-                }
-            } catch (err) {
-                alert('Gagal menghubungi server!');
-            } finally {
-                btn.disabled = false;
-                btn.textContent = 'Simpan Kegiatan';
+            if (result.error) alert(result.error);
+            else {
+                document.getElementById('form-kegiatan').reset();
+                document.getElementById('keg-tanggal').value = today;
+                loadKegiatan();
             }
+        } catch (err) {
+            alert('Gagal menghubungi server!');
+        } finally {
+            btn.disabled = false;
+            btn.textContent = 'Simpan Kegiatan';
         }
+    }
 
-        // Generic Hapus Row
-        async function hapusRow(tabel, id) {
-            if (confirm('Yakin ingin menghapus item ini?')) {
-                await fetch(`/api/${tabel}/${id}`, { method: 'DELETE' });
-                if (tabel === 'latihan') loadLatihan();
-                if (tabel === 'asupan') loadAsupan();
-                if (tabel === 'kegiatan') loadKegiatan();
-            }
+    // Generic Delete Row
+    async function hapusRow(tabel, id) {
+        if (confirm('Yakin ingin menghapus item ini?')) {
+            await fetch(`/api/${tabel}/${id}`, { method: 'DELETE' });
+            if (tabel === 'latihan') loadLatihan();
+            if (tabel === 'asupan') loadAsupan();
+            if (tabel === 'kegiatan') loadKegiatan();
         }
+    }
 
-        // --- REKAP & ARSIP & MAINTENANCE ---
-        async function loadDataRekap() {
-            const resL = await fetch('/api/rekap/latihan');
-            const dataL = await resL.json();
-            const tbodyL = document.querySelector('#table-rekap-latihan tbody');
-            tbodyL.innerHTML = '';
-            if (dataL.success && dataL.data.length > 0) {
-                const latest = dataL.data[0];
-                document.getElementById('summary-latihan').innerHTML = `
+    // Rekap & Arsip & Maintenance
+    async function loadDataRekap() {
+        const resL = await fetch('/api/rekap/latihan');
+        const dataL = await resL.json();
+        const tbodyL = document.querySelector('#table-rekap-latihan tbody');
+        tbodyL.innerHTML = '';
+        if (dataL.success && dataL.data.length > 0) {
+            const latest = dataL.data[0];
+            document.getElementById('summary-latihan').innerHTML = `
                 <b>Sesi Gym:</b> ${latest.gym_total_sesi}x<br>
                 <b>Volume Load:</b> ${latest.gym_total_volume_kg.toLocaleString()} kg<br>
                 <b>Durasi Kardio:</b> ${latest.kardio_total_durasi_menit} Menit
             `;
-                dataL.data.forEach(row => {
-                    tbodyL.innerHTML += `
+            dataL.data.forEach(row => {
+                tbodyL.innerHTML += `
                     <tr>
                         <td><b>${row.bulan_tahun}</b></td>
                         <td>${row.gym_total_sesi}</td>
@@ -684,73 +627,72 @@
                         <td>${row.peregangan_total_sesi}</td>
                     </tr>
                 `;
-                });
-            }
+            });
+        }
 
-            const resA = await fetch('/api/rekap/asupan');
-            const dataA = await resA.json();
-            if (dataA.success && dataA.data.length > 0) {
-                const latest = dataA.data[0];
-                document.getElementById('summary-asupan').innerHTML = `
+        const resA = await fetch('/api/rekap/asupan');
+        const dataA = await resA.json();
+        if (dataA.success && dataA.data.length > 0) {
+            const latest = dataA.data[0];
+            document.getElementById('summary-asupan').innerHTML = `
                 <b>Hari Puasa:</b> ${latest.jumlah_hari_puasa} Hari<br>
                 <b>Makanan Utama:</b> ${latest.total_makanan_utama} Catatan
             `;
-            }
+        }
 
-            const resK = await fetch('/api/rekap/kegiatan');
-            const dataK = await resK.json();
-            if (dataK.success && dataK.data.length > 0) {
-                const latest = dataK.data[0];
-                document.getElementById('summary-kegiatan').innerHTML = `
+        const resK = await fetch('/api/rekap/kegiatan');
+        const dataK = await resK.json();
+        if (dataK.success && dataK.data.length > 0) {
+            const latest = dataK.data[0];
+            document.getElementById('summary-kegiatan').innerHTML = `
                 <b>Total Kegiatan:</b> ${latest.total_kegiatan}<br>
                 <b>Jam Produktif:</b> ${latest.total_jam_produktif} Jam
             `;
-            }
         }
+    }
 
-        async function loadDaftarArsip() {
-            const res = await fetch('/api/archives/list');
-            const result = await res.json();
-            const select = document.getElementById('select-archive-file');
-            select.innerHTML = '<option value="">-- Pilih Berkas Arsip --</option>';
-            if (result.success && result.files.length > 0) {
-                result.files.forEach(file => {
-                    select.innerHTML += `<option value="${file}">${file}</option>`;
-                });
-            }
+    async function loadDaftarArsip() {
+        const res = await fetch('/api/archives/list');
+        const result = await res.json();
+        const select = document.getElementById('select-archive-file');
+        select.innerHTML = '<option value="">-- Pilih Berkas Arsip --</option>';
+        if (result.success && result.files.length > 0) {
+            result.files.forEach(file => {
+                select.innerHTML += `<option value="${file}">${file}</option>`;
+            });
         }
+    }
 
-        async function bacaFileArsip() {
-            const filename = document.getElementById('select-archive-file').value;
-            const viewer = document.getElementById('json-viewer');
-            if (!filename) { viewer.textContent = '// Pilih file di atas untuk menampilkan isi JSON'; return; }
-            const res = await fetch(`/api/archives/read/${filename}`);
-            const result = await res.json();
-            viewer.textContent = result.success ? JSON.stringify(result.data, null, 2) : 'Error: ' + result.error;
+    async function bacaFileArsip() {
+        const filename = document.getElementById('select-archive-file').value;
+        const viewer = document.getElementById('json-viewer');
+        if (!filename) { viewer.textContent = '// Pilih file di atas untuk menampilkan isi JSON'; return; }
+        const res = await fetch(`/api/archives/read/${filename}`);
+        const result = await res.json();
+        viewer.textContent = result.success ? JSON.stringify(result.data, null, 2) : 'Error: ' + result.error;
+    }
+
+    async function jalankanMaintenance() {
+        const statusDiv = document.getElementById('maintenance-status');
+        statusDiv.style.color = '#0284c7';
+        statusDiv.textContent = 'Memproses maintenance...';
+        const res = await fetch('/api/maintenance/run', { method: 'POST' });
+        const result = await res.json();
+        if (result.success) {
+            statusDiv.style.color = '#10b981';
+            statusDiv.textContent = `Sukses! ${result.totalFileDibuat || 0} file arsip dibuat, ${result.totalBarisDihapus || 0} baris tua dibersihkan.`;
+            loadDataRekap();
+        } else {
+            statusDiv.style.color = '#ef4444';
+            statusDiv.textContent = 'Gagal: ' + result.error;
         }
+    }
 
-        async function jalankanMaintenance() {
-            const statusDiv = document.getElementById('maintenance-status');
-            statusDiv.style.color = '#0284c7';
-            statusDiv.textContent = 'Memproses maintenance...';
-            const res = await fetch('/api/maintenance/run', { method: 'POST' });
-            const result = await res.json();
-            if (result.success) {
-                statusDiv.style.color = '#10b981';
-                statusDiv.textContent = `Sukses! ${result.totalFileDibuat || 0} file arsip dibuat, ${result.totalBarisDihapus || 0} baris tua dibersihkan.`;
-                loadDataRekap();
-            } else {
-                statusDiv.style.color = '#ef4444';
-                statusDiv.textContent = 'Gagal: ' + result.error;
-            }
-        }
-
-        // Initial Load
-        document.addEventListener('DOMContentLoaded', () => {
-            loadLatihan();
-        });
-    </script>
+    // Initial Load
+    document.addEventListener('DOMContentLoaded', () => {
+        loadLatihan();
+    });
+</script>
 
 </body>
-
 </html>
